@@ -120,3 +120,13 @@ GROUP BY category
 ORDER BY SUM(value) DESC;
 
 /* This gives a little better insight into my total credits and it's easier to see how / why the credits are higher in 2017, as well as each value's portion of the total credits. Income(mostly paychecks) was actually lower, but the stock sales and taxes were both significantly higher which helped to offset */
+
+/* This breaks down credits in 2016 by month.
+
+SELECT SUM(value), EXTRACT(MONTH FROM date),
+CASE WHEN date<='2017-01-01' 
+then value 
+else 0 end
+FROM debits
+GROUP BY EXTRACT(MONTH FROM date)
+ORDER BY SUM(value);
