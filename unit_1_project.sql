@@ -121,12 +121,41 @@ ORDER BY SUM(value) DESC;
 
 /* This gives a little better insight into my total credits and it's easier to see how / why the credits are higher in 2017, as well as each value's portion of the total credits. Income(mostly paychecks) was actually lower, but the stock sales and taxes were both significantly higher which helped to offset */
 
-/* This breaks down credits in 2016 by month.
+/* This breaks down debits in 2017 and 2016 by month: */
 
-SELECT SUM(value), EXTRACT(MONTH FROM date),
-CASE WHEN date<='2017-01-01' 
-then value 
-else 0 end
+SELECT  EXTRACT(MONTH FROM date) AS "Month",
+CONVERT(SUM(CASE WHEN date<='2016-12-31' then value else 0 end),DECIMAL(7,2)) '2016 debits by month',
+CONVERT(SUM(CASE WHEN date>='2017-01-01' then value else 0 end),DECIMAL(7,2)) '2017 debits by month'
 FROM debits
 GROUP BY EXTRACT(MONTH FROM date)
-ORDER BY SUM(value);
+ORDER BY `2016 debits by month`;
+
+/* I would've expected to have the largest expenses near the Holidays, but it turns out that my move to Chicago
+and trading in my car resulted in a large amount of outgoing funds in August and September, being significantly higher than
+other months.
+
+To compare 2017 values I just changed the last line from 2016 to 2017.
+
+November and December were both actually lower on the list than I would've expected for both years, 
+as the primary spending in 2017 was in July and October (Vacation + anniversary), so it seems that major life events / changes
+result in higher spending amounts than the expected and budgeted for holidays and recurring events. */
+
+CREATE TABLE annual_compare
+SELECT  EXTRACT(MONTH FROM date) AS "Month",
+CONVERT(SUM(CASE WHEN date<='2016-12-31' then value else 0 end),DECIMAL(7,2)) AS '2016',
+CONVERT(SUM(CASE WHEN date>='2017-01-01' then value else 0 end),DECIMAL(7,2)) AS '2017'
+FROM debits
+GROUP BY `Month`
+ORDER BY `Month`;
+
+/* I just created a new table to compare the values from month to month with the following query: */
+
+SELECT month, `2016`, `2017`,
+ABS(`2016`)-ABS(`2017`) AS difference
+FROM annual_compare
+GROUP BY `Month`
+ORDER BY `difference`;
+
+/* This shows the NET difference in spending. So the negative values indicate there were that many more credits (outgoing) funds.
+The largest differences were October and July, where 8.3k more credits were in 2017, compared to 2016. August had the 
+"most improved" value, given there was about 8.9k less in credits in 2017, compared to 2016. */
