@@ -112,8 +112,8 @@ WHERE date>='2017-01-01';
 To give more insight into comparing the two, I have broken each year down by the credit category. The categories normally found in debits (Travel, Rideshare, Shopping) are due to refunds received (credits) on debits in those categories */
 
 SELECT category,
-	CONVERT(SUM(CASE WHEN date<='2016-12-31' then value else 0 end),DECIMAL(7,2)) 2016_total,
-    CONVERT(SUM(CASE WHEN date>='2017-01-01' then value else 0 end),DECIMAL(7,2)) 2017_total,                         
+	CONVERT(SUM(CASE WHEN YEAR(date)=2016 then value else 0 end),DECIMAL(7,2)) 2016_total,
+    CONVERT(SUM(CASE WHEN YEAR(date)=2017 then value else 0 end),DECIMAL(7,2)) 2017_total,                         
 	CONVERT(SUM(value),DECIMAL(7,2)) AS total_credits
 FROM credits
 GROUP BY category
@@ -124,8 +124,8 @@ ORDER BY SUM(value) DESC;
 /* This breaks down debits in 2017 and 2016 by month: */
 
 SELECT  EXTRACT(MONTH FROM date) AS "Month",
-CONVERT(SUM(CASE WHEN date<='2016-12-31' then value else 0 end),DECIMAL(7,2)) '2016 debits by month',
-CONVERT(SUM(CASE WHEN date>='2017-01-01' then value else 0 end),DECIMAL(7,2)) '2017 debits by month'
+CONVERT(SUM(CASE WHEN YEAR(date)=2016 then value else 0 end),DECIMAL(7,2)) '2016 debits by month',
+CONVERT(SUM(CASE WHEN YEAR(date)=2017 then value else 0 end),DECIMAL(7,2)) '2017 debits by month'
 FROM debits
 GROUP BY EXTRACT(MONTH FROM date)
 ORDER BY `2016 debits by month`;
@@ -142,8 +142,8 @@ result in higher spending amounts than the expected and budgeted for holidays an
 
 CREATE TABLE annual_compare
 SELECT  EXTRACT(MONTH FROM date) AS "Month",
-CONVERT(SUM(CASE WHEN date<='2016-12-31' then value else 0 end),DECIMAL(7,2)) AS '2016',
-CONVERT(SUM(CASE WHEN date>='2017-01-01' then value else 0 end),DECIMAL(7,2)) AS '2017'
+CONVERT(SUM(CASE WHEN YEAR(date)=2016 then value else 0 end),DECIMAL(7,2)) AS '2016',
+CONVERT(SUM(CASE WHEN YEAR(date)=2017 then value else 0 end),DECIMAL(7,2)) AS '2017'
 FROM debits
 GROUP BY `Month`
 ORDER BY `Month`;
